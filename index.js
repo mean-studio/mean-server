@@ -18,6 +18,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+app.engine('html', nunjucks.render);
+app.set('view engine', 'html');
+
 nunjucks.configure('views', {
   autoescape: true,
   express: app
