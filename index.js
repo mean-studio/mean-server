@@ -9,9 +9,11 @@ const uuidv4 = require('uuid').v4;
 const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const nunjucks = require('nunjucks')
+const nunjucks = require('nunjucks');
 const app = express();
 const port = process.env.port || 3000;
+const CustomError = require('./error')
+const mongodb = require('./mongodb')
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -43,8 +45,8 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  const path = resolve(process.env.STATIC_DIR + "/index.html");
-  res.sendFile(path);
+  const file = path.resolve("public/index.html");
+  res.sendFile(file);
 });
 
 app.get("/get-oauth-link", async (req, res) => {
@@ -91,18 +93,19 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  if (isNaN(err.code)) err.code = 500
+  next(err)
 });
+// error handler
+app.use(function (err, req, res, next) {
+  const { code = 500, message = 'we are experiencing some technical difficulties' } = err
+  res.status(code).json({ code, message })
+});
+
 const saveAccountId = (id) => {
   // Save the connected account ID from the response to your database.
   console.log('Connected account ID: ' + id);
 }
 
 app.listen(port, () => console.log(`Node server listening on port ${port}!`));
-module.exports = app
+module.exports = { app, mongodb, CustomError }
