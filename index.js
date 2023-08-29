@@ -44,11 +44,6 @@ app.use((req, res, next) => {
   }
 });
 
-app.get("/", (req, res) => {
-  const file = path.resolve("public/index.html");
-  res.sendFile(file);
-});
-
 app.get("/get-oauth-link", async (req, res) => {
   const state = uuidv4();
   req.session.state = state
