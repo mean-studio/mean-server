@@ -28,7 +28,7 @@ nunjucks.configure('views', {
   express: app
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 app.use(session({
   secret: uuidv4(),
   resave: false,
